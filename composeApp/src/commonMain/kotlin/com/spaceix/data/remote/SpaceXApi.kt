@@ -1,5 +1,6 @@
 package com.spaceix.data.remote
 
+import com.spaceix.data.model.LaunchesResponse
 import com.spaceix.domain.Either
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -8,7 +9,7 @@ import io.ktor.client.request.get
 private const val BASE_URL = "https://api.spacexdata.com/v3"
 
 class SpaceXApi(private val httpClient: HttpClient) {
-    suspend fun getAllLaunches(): Unit {
+    suspend fun getAllLaunches(): LaunchesResponse {
         return httpClient.get("$BASE_URL/launches").body()
     }
 

@@ -3,6 +3,7 @@ package com.spaceix
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.spaceix.app.App
+import com.spaceix.designsystem.PlatformColorScheme
 import com.spaceix.di.initKoin
 
 fun main() {
@@ -12,7 +13,7 @@ fun main() {
             onCloseRequest = ::exitApplication,
             title = "SpaceX",
         ) {
-            App()
+            App(PlatformColorScheme())
         }
     }
 }

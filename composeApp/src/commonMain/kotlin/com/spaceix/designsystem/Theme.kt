@@ -1,6 +1,9 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package com.spaceix.designsystem
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -82,14 +85,19 @@ val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+expect class PlatformColorScheme {
+    val platformDarkScheme: ColorScheme
+    val platformLightScheme: ColorScheme
+}
+
 @Composable
 fun SpacexTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    platformColorScheme: PlatformColorScheme,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        darkTheme -> darkScheme
-        else -> lightScheme
+        isSystemInDarkTheme() -> platformColorScheme.platformDarkScheme
+        else -> platformColorScheme.platformLightScheme
     }
 
     MaterialTheme(

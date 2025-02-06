@@ -1,10 +1,12 @@
 package com.spaceix.app
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.spaceix.designsystem.PlatformColorScheme
 import com.spaceix.designsystem.SpacexTheme
 import com.spaceix.presentation.launches.AllLaunchesScreen
 import com.spaceix.presentation.launches.AllLaunchesViewModel
@@ -14,14 +16,16 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 @Preview
-fun App() {
-    SpacexTheme {
+fun App(platformColorScheme: PlatformColorScheme) {
+    SpacexTheme(platformColorScheme) {
         KoinContext {
             Surface(
-                modifier = Modifier.fillMaxSize().statusBarsPadding()
+                modifier = Modifier.fillMaxSize()
             ) {
                 val viewModel = koinViewModel<AllLaunchesViewModel>()
-                AllLaunchesScreen(viewModel) {}
+                Column(modifier = Modifier.statusBarsPadding().fillMaxSize()) {
+                    AllLaunchesScreen(viewModel) {}
+                }
             }
         }
     }
