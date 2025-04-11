@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="bottom_nav_launches">Launches</string>
+    <string name="bottom_nav_rockets">Rockets</string>
+    <string name="bottom_nav_favourites">Favourites</string>
+    <string name="launch_success">Success</string>
+    <string name="launch_failure">Failure</string>
+</resources>

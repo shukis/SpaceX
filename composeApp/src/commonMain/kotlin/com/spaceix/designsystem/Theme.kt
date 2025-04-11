@@ -8,6 +8,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 
 val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -90,6 +95,21 @@ expect class PlatformColorScheme {
     val platformLightScheme: ColorScheme
 }
 
+@Immutable
+data class CustomColorsPalette(
+    val success: Color = Color.Unspecified,
+    val yellow: Color = Color.Unspecified
+)
+
+val lightCustomColorsPalette = CustomColorsPalette(success = successLight, yellow = yellowLight)
+val darkCustomColorsPalette = CustomColorsPalette(success = successDark, yellow = yellowDark)
+val localCustomColorsPalette = staticCompositionLocalOf { CustomColorsPalette() }
+
+val MaterialTheme.customColorsPalette: CustomColorsPalette
+    @Composable
+    @ReadOnlyComposable
+    get() = localCustomColorsPalette.current
+
 @Composable
 fun SpacexTheme(
     platformColorScheme: PlatformColorScheme,
@@ -99,10 +119,18 @@ fun SpacexTheme(
         isSystemInDarkTheme() -> platformColorScheme.platformDarkScheme
         else -> platformColorScheme.platformLightScheme
     }
+    val customColorsPalette = when {
+        isSystemInDarkTheme() -> darkCustomColorsPalette
+        else -> lightCustomColorsPalette
+    }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(
+        localCustomColorsPalette provides customColorsPalette
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

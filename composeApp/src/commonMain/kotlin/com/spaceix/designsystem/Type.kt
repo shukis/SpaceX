@@ -53,28 +53,3 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
 )
-
-//@ThemePreviews
-//@Composable
-//private fun Preview() = SpotItTheme {
-//    Surface {
-//        Column(Modifier.padding(16.dp)) {
-//            PreviewItem("bodyLarge", Typography.bodyLarge)
-//            PreviewItem("bodyMedium", Typography.bodyMedium)
-//            PreviewItem("bodySmall", Typography.bodySmall)
-//            PreviewItem("titleLarge", Typography.titleLarge)
-//            PreviewItem("labelSmall", Typography.labelSmall)
-//        }
-//    }
-//}
-//
-//@Composable
-//private fun PreviewItem(name: String, style: TextStyle) {
-//    Text(
-//        text = "$name | ${LoremIpsum(2).values.joinToString(" ")}",
-//        style = style,
-//        maxLines = 1,
-//        overflow = TextOverflow.Ellipsis
-//    )
-//    Spacer(Modifier.height(8.dp))
-//}

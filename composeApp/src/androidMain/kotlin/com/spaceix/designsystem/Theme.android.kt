@@ -8,21 +8,20 @@ import androidx.compose.material3.dynamicLightColorScheme
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class PlatformColorScheme(
-    private val context: Context
+    private val context: Context,
+    private val showDynamicPalette: Boolean
 ) {
     private val isDynamicPalette = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     actual val platformDarkScheme: ColorScheme
-        get() = if (isDynamicPalette) {
-            darkScheme
-//            dynamicDarkColorScheme(context)
+        get() = if (isDynamicPalette && showDynamicPalette) {
+            dynamicDarkColorScheme(context)
         } else {
             darkScheme
         }
     actual val platformLightScheme: ColorScheme
-        get() = if (isDynamicPalette) {
-            lightScheme
-//            dynamicLightColorScheme(context)
+        get() = if (isDynamicPalette && showDynamicPalette) {
+            dynamicLightColorScheme(context)
         } else {
             lightScheme
         }

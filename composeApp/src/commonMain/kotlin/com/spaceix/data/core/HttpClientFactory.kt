@@ -11,16 +11,20 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
 
 object HttpClientFactory {
-
+    @OptIn(ExperimentalSerializationApi::class)
     fun create(engine: HttpClientEngine): HttpClient {
         return HttpClient(engine) {
             install(ContentNegotiation) {
                 json(
                     json = Json {
                         ignoreUnknownKeys = true
+                        namingStrategy = JsonNamingStrategy.SnakeCase
+                        explicitNulls = false
                     }
                 )
             }
