@@ -11,11 +11,11 @@ import com.spaceix.domain.usecase.launches.DeleteFromFavouriteLaunchesUseCase
 import com.spaceix.domain.usecase.launches.GetLaunchesUseCase
 import com.spaceix.domain.usecase.rockets.DeleteFromFavouriteRocketsUseCase
 import com.spaceix.domain.usecase.rockets.GetRocketsUseCase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class FavouritesViewModel(
@@ -36,6 +36,10 @@ class FavouritesViewModel(
 
     private val _showLoader = MutableStateFlow(true)
     val showLoader = _showLoader.asStateFlow()
+
+    val showEmptyListText = _launches.combine(_rockets) { launches, rockets ->
+        launches.isNullOrEmpty() && rockets.isNullOrEmpty()
+    }
 
     init {
         viewModelScope.launch {

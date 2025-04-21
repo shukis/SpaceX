@@ -67,6 +67,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             api(libs.datastore.preferences)
             api(libs.datastore)
+            implementation(compose.materialIconsExtended)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

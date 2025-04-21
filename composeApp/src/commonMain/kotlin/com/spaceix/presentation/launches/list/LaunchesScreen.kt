@@ -25,12 +25,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.spaceix.core.format
 import com.spaceix.core.navigation.observeNavigation
 import com.spaceix.designsystem.Typography
 import com.spaceix.designsystem.components.RootTopAppBar
@@ -39,11 +39,7 @@ import com.spaceix.designsystem.customColorsPalette
 import com.spaceix.designsystem.icons.filled.Star
 import com.spaceix.designsystem.icons.outlined.Star
 import com.spaceix.designsystem.util.updateScrollState
-import com.spaceix.domain.model.LaunchEntity
 import kotlinx.datetime.Instant
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import spacex.composeapp.generated.resources.Res
@@ -142,12 +138,4 @@ private fun SupportingContent(success: Boolean, date: Instant) {
         Spacer(Modifier.width(12.dp))
         Text(text = format(date))
     }
-}
-
-@Composable
-private fun format(instant: Instant): String = remember(instant) {
-    val customFormat = DateTimeComponents.Format {
-        dayOfMonth();char('.');monthNumber();char('.');year()
-    }
-    instant.format(customFormat)
 }

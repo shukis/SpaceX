@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +44,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.spaceix.core.format
 import com.spaceix.core.navigation.observeNavigation
 import com.spaceix.designsystem.Typography
 import com.spaceix.designsystem.components.RootTopAppBar
@@ -52,13 +56,13 @@ import com.spaceix.designsystem.util.updateScrollState
 import com.spaceix.domain.model.LaunchEntity
 import com.spaceix.domain.model.RocketEntity
 import kotlinx.datetime.Instant
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import spacex.composeapp.generated.resources.Res
 import spacex.composeapp.generated.resources.bottom_nav_favourites
+import spacex.composeapp.generated.resources.bottom_nav_launches
+import spacex.composeapp.generated.resources.bottom_nav_rockets
+import spacex.composeapp.generated.resources.favourites_empty_list
 import spacex.composeapp.generated.resources.launch_failure
 import spacex.composeapp.generated.resources.launch_success
 
@@ -70,50 +74,102 @@ fun FavouritesScreen(navController: NavHostController, paddingValues: PaddingVal
     FavouritesColumn(viewModel, paddingValues)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FavouritesColumn(viewModel: FavouritesViewModel, paddingValues: PaddingValues) {
     val behavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val lazyListState = rememberLazyListState()
-    val launches = viewModel.launches.collectAsStateWithLifecycle().value.orEmpty()
-    val rockets = viewModel.rockets.collectAsStateWithLifecycle().value.orEmpty()
-    val showLoader = viewModel.showLoader.collectAsStateWithLifecycle().value
-    behavior.updateScrollState(lazyListState)
     Column {
         RootTopAppBar(behavior, stringResource(Res.string.bottom_nav_favourites)) {
             viewModel.onSettingsClicked()
         }
-        LazyColumn(modifier = Modifier.fillMaxSize(), state = lazyListState) {
-            if (launches.isNotEmpty()) {
-                stickyHeader { StickyHeader(title = "Launches", lazyListState) }
-            }
-            items(launches, key = { it.id }) { launch -> LaunchItem(launch, viewModel) }
-            if (rockets.isNotEmpty()) {
-                stickyHeader { StickyHeader(title = "Rockets", lazyListState) }
-            }
-            items(rockets, key = { it.id }) { rocket -> RocketItem(rocket, viewModel) }
-            if (showLoader) {
-                item {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.width(24.dp).height(24.dp)
-                        )
-                    }
-                }
-            }
-            item {
-                Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+        FavouritesContent(viewModel, behavior, paddingValues)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FavouritesContent(
+    viewModel: FavouritesViewModel,
+    behavior: TopAppBarScrollBehavior,
+    paddingValues: PaddingValues
+) {
+    val lazyListState = rememberLazyListState()
+    val launches = viewModel.launches.collectAsStateWithLifecycle().value.orEmpty()
+    val rockets = viewModel.rockets.collectAsStateWithLifecycle().value.orEmpty()
+    val showLoader = viewModel.showLoader.collectAsStateWithLifecycle().value
+    val showEmptyText = viewModel.showEmptyListText.collectAsStateWithLifecycle(false).value
+    behavior.updateScrollState(lazyListState)
+    LazyColumn(modifier = Modifier.fillMaxSize(), state = lazyListState) {
+        launchItems(launches, viewModel, lazyListState)
+        rocketItems(rockets, viewModel, lazyListState)
+        loaderOrEmptyListItem(showLoader, showEmptyText)
+        footerItem(paddingValues)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.launchItems(
+    launches: List<LaunchEntity>,
+    viewModel: FavouritesViewModel,
+    lazyListState: LazyListState
+) {
+    if (launches.isNotEmpty()) {
+        stickyHeader {
+            StickyHeader(
+                title = stringResource(Res.string.bottom_nav_launches),
+                lazyListState
+            )
+        }
+    }
+    items(launches, key = { it.id }) { launch -> LaunchItem(launch, viewModel) }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.rocketItems(
+    rockets: List<RocketEntity>,
+    viewModel: FavouritesViewModel,
+    lazyListState: LazyListState
+) {
+    if (rockets.isNotEmpty()) {
+        stickyHeader {
+            StickyHeader(
+                title = stringResource(Res.string.bottom_nav_rockets),
+                lazyListState
+            )
+        }
+    }
+    items(rockets, key = { it.id }) { rocket -> RocketItem(rocket, viewModel) }
+}
+
+private fun LazyListScope.loaderOrEmptyListItem(showLoader: Boolean, showEmptyList: Boolean) {
+    item {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            when {
+                showLoader -> CircularProgressIndicator(
+                    modifier = Modifier.width(24.dp).height(24.dp)
+                )
+
+                showEmptyList -> Text(
+                    text = stringResource(Res.string.favourites_empty_list),
+                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 96.dp),
+                    style = Typography.titleMedium
+                )
             }
         }
     }
 }
 
+private fun LazyListScope.footerItem(paddingValues: PaddingValues) {
+    item {
+        Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
+    }
+}
 
 @Composable
-fun StickyHeader(title: String, lazyListState: LazyListState) {
+fun LazyItemScope.StickyHeader(title: String, lazyListState: LazyListState) {
     var isStuck by remember { mutableStateOf(false) }
     val backgroundColor by animateColorAsState(
         if (isStuck) {
@@ -128,6 +184,7 @@ fun StickyHeader(title: String, lazyListState: LazyListState) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .animateItem()
             .background(backgroundColor)
             .onGloballyPositioned { coords ->
                 isStuck = coords.positionInParent().y == 0f &&
@@ -144,8 +201,9 @@ fun StickyHeader(title: String, lazyListState: LazyListState) {
 }
 
 @Composable
-private fun LaunchItem(launch: LaunchEntity, viewModel: FavouritesViewModel) {
+private fun LazyItemScope.LaunchItem(launch: LaunchEntity, viewModel: FavouritesViewModel) {
     SelectableListItem(
+        modifier = Modifier.animateItem(),
         headlineContent = { Text(text = launch.name) },
         supportingContent = {
             SupportingContent(
@@ -166,8 +224,9 @@ private fun LaunchItem(launch: LaunchEntity, viewModel: FavouritesViewModel) {
 }
 
 @Composable
-private fun RocketItem(rocket: RocketEntity, viewModel: FavouritesViewModel) {
+private fun LazyItemScope.RocketItem(rocket: RocketEntity, viewModel: FavouritesViewModel) {
     SelectableListItem(
+        modifier = Modifier.animateItem(),
         headlineContent = { Text(text = rocket.name.orEmpty()) },
         leadingContentUrl = rocket.flickrImages.first(),
         trailingIconContent = {
@@ -215,12 +274,4 @@ private fun SupportingContent(success: Boolean, date: Instant) {
         Spacer(Modifier.width(12.dp))
         Text(text = format(date))
     }
-}
-
-@Composable
-private fun format(instant: Instant): String = remember(instant) {
-    val customFormat = DateTimeComponents.Format {
-        dayOfMonth();char('.');monthNumber();char('.');year()
-    }
-    instant.format(customFormat)
 }

@@ -35,7 +35,6 @@ class LaunchesViewModel(
     }
 
     fun onViewResumed() {
-            println("onViewResumed")
             viewModelScope.launch {
                 getLaunches()
                 _showLoader.emit(false)

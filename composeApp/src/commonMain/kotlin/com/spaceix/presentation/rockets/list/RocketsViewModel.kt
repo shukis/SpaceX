@@ -43,7 +43,7 @@ class RocketsViewModel(
                 _rockets.emit(it.rockets)
             },
             onFailure = {
-                //TODO
+                println(it)
             }
         )
     }

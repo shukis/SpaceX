@@ -36,7 +36,7 @@ class LaunchDetailsViewModel(
             getLaunchUseCase(GetLaunchUseCase.Arg(launchId)).unwrap(
                 onSuccess = { _launch.emit(it) },
                 onFailure = {
-                    //TODO
+                    println(it)
                 }
             )
             getCrewMembers()
@@ -44,7 +44,6 @@ class LaunchDetailsViewModel(
     }
 
     private suspend fun getCrewMembers() = coroutineScope {
-        delay(5000)
         _launch.value?.crew?.map {
             async { getCrewMemberUseCase(GetCrewMemberUseCase.Arg(it)) }
         }?.awaitAll()?.mapNotNull { it.getContentOrNull() }?.let {

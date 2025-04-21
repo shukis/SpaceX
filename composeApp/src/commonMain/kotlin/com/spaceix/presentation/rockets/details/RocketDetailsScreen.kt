@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.spaceix.core.navigation.UrlOpener
 import com.spaceix.designsystem.components.ImageViewer
 import com.spaceix.designsystem.components.InfoRow
 import com.spaceix.designsystem.components.InfoSection
@@ -35,8 +36,35 @@ import com.spaceix.designsystem.components.MasonryImageGrid
 import com.spaceix.designsystem.customColorsPalette
 import com.spaceix.designsystem.icons.filled.Star
 import com.spaceix.designsystem.icons.outlined.Star
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import spacex.composeapp.generated.resources.Res
+import spacex.composeapp.generated.resources.back
+import spacex.composeapp.generated.resources.favourite
+import spacex.composeapp.generated.resources.gallery
+import spacex.composeapp.generated.resources.rocket_details_active
+import spacex.composeapp.generated.resources.rocket_details_boosters
+import spacex.composeapp.generated.resources.rocket_details_company
+import spacex.composeapp.generated.resources.rocket_details_cost
+import spacex.composeapp.generated.resources.rocket_details_count
+import spacex.composeapp.generated.resources.rocket_details_description
+import spacex.composeapp.generated.resources.rocket_details_diameter
+import spacex.composeapp.generated.resources.rocket_details_dimensions
+import spacex.composeapp.generated.resources.rocket_details_engines
+import spacex.composeapp.generated.resources.rocket_details_height
+import spacex.composeapp.generated.resources.rocket_details_inactive
+import spacex.composeapp.generated.resources.rocket_details_kg
+import spacex.composeapp.generated.resources.rocket_details_m
+import spacex.composeapp.generated.resources.rocket_details_mass
+import spacex.composeapp.generated.resources.rocket_details_overview
+import spacex.composeapp.generated.resources.rocket_details_payloads
+import spacex.composeapp.generated.resources.rocket_details_stages
+import spacex.composeapp.generated.resources.rocket_details_success_rate
+import spacex.composeapp.generated.resources.rocket_details_success_rate_percentage
+import spacex.composeapp.generated.resources.rocket_details_type
+import spacex.composeapp.generated.resources.wikipedia
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +72,7 @@ fun RocketDetailsScreen(
     rocketId: String,
     navController: NavHostController
 ) {
+    val urlOpener = getKoin().get<UrlOpener>()
     val viewModel = koinViewModel<RocketDetailsViewModel> { parametersOf(rocketId) }
     val rocket = viewModel.rocket.collectAsStateWithLifecycle().value
     val showImageViewer = viewModel.showImageViewer.collectAsStateWithLifecycle().value
@@ -54,7 +83,10 @@ fun RocketDetailsScreen(
                     title = { },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(Res.string.back)
+                            )
                         }
                     },
                     actions = {
@@ -65,7 +97,7 @@ fun RocketDetailsScreen(
                                 } else {
                                     Icons.Outlined.Star
                                 },
-                                contentDescription = "Favorite",
+                                contentDescription = stringResource(Res.string.favourite),
                                 tint = if (rocket.isFavourite) {
                                     MaterialTheme.customColorsPalette.yellow
                                 } else {
@@ -103,7 +135,17 @@ fun RocketDetailsScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "${rocket.country.orEmpty()} • ${if (rocket.active == true) "Active" else "Inactive"}",
+                                text = if (rocket.active == true) {
+                                    stringResource(
+                                        Res.string.rocket_details_active,
+                                        rocket.country.orEmpty()
+                                    )
+                                } else {
+                                    stringResource(
+                                        Res.string.rocket_details_inactive,
+                                        rocket.country.orEmpty()
+                                    )
+                                },
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -111,43 +153,92 @@ fun RocketDetailsScreen(
                     }
 
                     item {
-                        InfoSection(title = "Overview") {
-                            InfoRow("Type", rocket.type)
-                            InfoRow("Company", rocket.company)
-                            InfoRow("Cost / Launch", rocket.costPerLaunch?.let { "$$it" })
-                            InfoRow("Success Rate", rocket.successRatePct?.let { "$it%" })
+                        InfoSection(title = stringResource(Res.string.rocket_details_overview)) {
+                            InfoRow(stringResource(Res.string.rocket_details_type), rocket.type)
+                            InfoRow(
+                                stringResource(Res.string.rocket_details_company),
+                                rocket.company
+                            )
+                            rocket.costPerLaunch?.let {
+                                InfoRow(
+                                    stringResource(Res.string.rocket_details_cost),
+                                    "$$it"
+                                )
+                            }
+                            rocket.successRatePct?.let {
+                                InfoRow(
+                                    stringResource(Res.string.rocket_details_success_rate),
+                                    stringResource(
+                                        Res.string.rocket_details_success_rate_percentage,
+                                        it
+                                    )
+                                )
+                            }
                         }
                     }
 
                     item {
-                        InfoSection(title = "Dimensions") {
-                            InfoRow("Height", rocket.height?.let { "$it m" })
-                            InfoRow("Diameter", rocket.diameter?.let { "$it m" })
-                            InfoRow("Mass", rocket.mass?.let { "$it kg" })
+                        InfoSection(title = stringResource(Res.string.rocket_details_dimensions)) {
+                            rocket.height?.let {
+                                InfoRow(
+                                    stringResource(Res.string.rocket_details_height),
+                                    stringResource(Res.string.rocket_details_m, it)
+                                )
+                            }
+                            rocket.diameter?.let {
+                                InfoRow(
+                                    stringResource(Res.string.rocket_details_diameter),
+                                    stringResource(Res.string.rocket_details_m, it)
+                                )
+                            }
+                            rocket.mass?.let {
+                                InfoRow(
+                                    stringResource(Res.string.rocket_details_mass),
+                                    stringResource(Res.string.rocket_details_kg, it)
+                                )
+                            }
                         }
                     }
 
                     item {
-                        InfoSection(title = "Stages") {
-                            InfoRow("Stages", rocket.stages.toString())
-                            InfoRow("Boosters", rocket.boosters.toString())
+                        InfoSection(title = stringResource(Res.string.rocket_details_stages)) {
+                            InfoRow(
+                                stringResource(Res.string.rocket_details_stages),
+                                rocket.stages.toString()
+                            )
+                            InfoRow(
+                                stringResource(Res.string.rocket_details_boosters),
+                                rocket.boosters.toString()
+                            )
                         }
                     }
 
 
                     item {
-                        InfoSection(title = "Engines") {
-                            InfoRow("Count", rocket.engines?.number.toString())
-                            InfoRow("Type", rocket.engines?.type)
+                        InfoSection(title = stringResource(Res.string.rocket_details_engines)) {
+                            InfoRow(
+                                stringResource(Res.string.rocket_details_count),
+                                rocket.engines?.number.toString()
+                            )
+                            InfoRow(
+                                stringResource(Res.string.rocket_details_type),
+                                rocket.engines?.type
+                            )
                         }
                     }
 
                     item {
                         rocket.payloadWeights.filterNotNull().takeIf { it.isNotEmpty() }
                             ?.let { payloads ->
-                                InfoSection(title = "Payloads") {
+                                InfoSection(title = stringResource(Res.string.rocket_details_payloads)) {
                                     payloads.forEach {
-                                        InfoRow("${it.id}", "${it.kg} kg")
+                                        InfoRow(
+                                            it.id,
+                                            stringResource(
+                                                Res.string.rocket_details_kg,
+                                                it.kg.toString()
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -155,7 +246,10 @@ fun RocketDetailsScreen(
 
                     item {
                         if (rocket.flickrImages.size > 1) {
-                            Text("Gallery", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                stringResource(Res.string.gallery),
+                                style = MaterialTheme.typography.titleMedium
+                            )
                             Spacer(Modifier.height(8.dp))
                             MasonryImageGrid(rocket.flickrImages) { index ->
                                 viewModel.onImageClick(index)
@@ -164,7 +258,7 @@ fun RocketDetailsScreen(
                     }
                     item {
                         rocket.description?.let {
-                            InfoSection(title = "Description") {
+                            InfoSection(title = stringResource(Res.string.rocket_details_description)) {
                                 Text(
                                     text = it,
                                     style = MaterialTheme.typography.bodyMedium
@@ -175,8 +269,8 @@ fun RocketDetailsScreen(
 
                     item {
                         rocket.wikipedia?.let { url ->
-                            OutlinedButton(onClick = { /* open URL */ }) {
-                                Text("Wikipedia")
+                            OutlinedButton(onClick = { urlOpener.open(url) }) {
+                                Text(stringResource(Res.string.wikipedia))
                             }
                         }
                     }

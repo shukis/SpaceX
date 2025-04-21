@@ -13,6 +13,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import com.spaceix.manager.AppTheme
 
 val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -93,6 +94,7 @@ val darkScheme = darkColorScheme(
 expect class PlatformColorScheme {
     val platformDarkScheme: ColorScheme
     val platformLightScheme: ColorScheme
+    val appTheme: AppTheme
 }
 
 @Immutable
@@ -116,7 +118,9 @@ fun SpacexTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        isSystemInDarkTheme() -> platformColorScheme.platformDarkScheme
+        platformColorScheme.appTheme == AppTheme.DARK -> platformColorScheme.platformDarkScheme
+        platformColorScheme.appTheme == AppTheme.LIGHT -> platformColorScheme.platformLightScheme
+        platformColorScheme.appTheme == AppTheme.SYSTEM && isSystemInDarkTheme() -> platformColorScheme.platformDarkScheme
         else -> platformColorScheme.platformLightScheme
     }
     val customColorsPalette = when {

@@ -1,5 +1,6 @@
 package com.spaceix.di
 
+import com.spaceix.ThemeViewModel
 import com.spaceix.core.AndroidUrlOpener
 import com.spaceix.core.navigation.UrlOpener
 import com.spaceix.data.database.DatabaseFactory
@@ -8,6 +9,7 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 actual val platformModule: Module
@@ -16,4 +18,5 @@ actual val platformModule: Module
         single { DatabaseFactory(androidApplication()) }
         single { SpaceXDataStore(androidApplication()) }
         single<UrlOpener> { AndroidUrlOpener(get()) }
+        viewModel { ThemeViewModel(get()) }
     }

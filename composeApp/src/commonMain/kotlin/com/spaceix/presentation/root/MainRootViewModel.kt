@@ -117,18 +117,6 @@ class MainRootViewModel : ViewModel() {
             }
         }
     }
-
-    fun onLaunchClicked(launchId: String) {
-        viewModelScope.launch {
-            _navigation.emit(Navigation(Route.LaunchDetails(launchId)) {
-
-            })
-        }
-    }
-
-    fun onRocketClicked(rocketId: String) {
-
-    }
 }
 
 data class BottomNavigationItem(

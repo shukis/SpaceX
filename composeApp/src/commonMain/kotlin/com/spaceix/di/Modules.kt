@@ -7,6 +7,7 @@ import com.spaceix.data.database.DatabaseFactory
 import com.spaceix.data.database.FavoriteDatabase
 import com.spaceix.data.local.LaunchesCache
 import com.spaceix.data.local.RocketsCache
+import com.spaceix.data.manager.ThemeManagerImpl
 import com.spaceix.data.remote.SpaceXApi
 import com.spaceix.data.repository.SpaceXRepositoryImpl
 import com.spaceix.domain.repository.SpaceXRepository
@@ -21,13 +22,15 @@ import com.spaceix.domain.usecase.rockets.GetFavouriteRocketsUseCase
 import com.spaceix.domain.usecase.rockets.GetRocketUseCase
 import com.spaceix.domain.usecase.rockets.GetRocketsUseCase
 import com.spaceix.domain.usecase.rockets.MarkAsFavouriteRocketUseCase
+import com.spaceix.manager.ThemeManager
 import com.spaceix.presentation.favourites.FavouritesViewModel
-import com.spaceix.presentation.settings.SettingsViewModel
 import com.spaceix.presentation.launches.details.LaunchDetailsViewModel
 import com.spaceix.presentation.launches.list.LaunchesViewModel
 import com.spaceix.presentation.rockets.details.RocketDetailsViewModel
 import com.spaceix.presentation.rockets.list.RocketsViewModel
 import com.spaceix.presentation.root.MainRootViewModel
+import com.spaceix.presentation.settings.SettingsViewModel
+import com.spaceix.ThemeViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -43,6 +46,7 @@ val sharedModule = module {
     single { SpaceXApi(get()) }
 
     singleOf(::SpaceXRepositoryImpl).bind<SpaceXRepository>()
+    singleOf(::ThemeManagerImpl).bind<ThemeManager>()
     viewModelOf(::LaunchesViewModel)
     viewModelOf(::MainRootViewModel)
     viewModelOf(::RocketsViewModel)

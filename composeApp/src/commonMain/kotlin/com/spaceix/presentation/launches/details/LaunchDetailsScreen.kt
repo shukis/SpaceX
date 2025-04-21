@@ -29,7 +29,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.spaceix.core.format
 import com.spaceix.core.navigation.UrlOpener
 import com.spaceix.designsystem.Typography
 import com.spaceix.designsystem.components.ImageViewer
@@ -52,17 +52,28 @@ import com.spaceix.designsystem.icons.outlined.Star
 import com.spaceix.designsystem.util.updateScrollState
 import com.spaceix.domain.model.CrewMemberEntity
 import com.spaceix.domain.model.LaunchEntity
-import kotlinx.datetime.Instant
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import spacex.composeapp.generated.resources.Res
+import spacex.composeapp.generated.resources.article
+import spacex.composeapp.generated.resources.back
+import spacex.composeapp.generated.resources.details
+import spacex.composeapp.generated.resources.favourite
+import spacex.composeapp.generated.resources.gallery
+import spacex.composeapp.generated.resources.launch_details_crew
+import spacex.composeapp.generated.resources.launch_details_date
+import spacex.composeapp.generated.resources.launch_details_failure_reason
+import spacex.composeapp.generated.resources.launch_details_flight_number
+import spacex.composeapp.generated.resources.launch_details_info
+import spacex.composeapp.generated.resources.launch_details_status
 import spacex.composeapp.generated.resources.launch_failure
 import spacex.composeapp.generated.resources.launch_success
+import spacex.composeapp.generated.resources.reddit
+import spacex.composeapp.generated.resources.status
+import spacex.composeapp.generated.resources.webcast
+import spacex.composeapp.generated.resources.wikipedia
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +116,10 @@ private fun LaunchDetailsTopAppBar(
         title = { },
         navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(Res.string.back)
+                )
             }
         },
         scrollBehavior = scrollBehavior,
@@ -117,7 +131,7 @@ private fun LaunchDetailsTopAppBar(
                     } else {
                         Icons.Outlined.Star
                     },
-                    contentDescription = "Favorite",
+                    contentDescription = stringResource(Res.string.favourite),
                     tint = if (launch.isFavourite) {
                         MaterialTheme.customColorsPalette.yellow
                     } else {
@@ -162,11 +176,17 @@ private fun LaunchDetailsContent(
             )
         }
         item {
-            InfoSection(title = "Launch Info") {
-                InfoRow(label = "Flight Number", value = "#${launch.flightNumber}")
-                InfoRow(label = "Date", value = format(launch.launchDateUtc))
+            InfoSection(title = stringResource(Res.string.launch_details_info)) {
                 InfoRow(
-                    label = "Status",
+                    label = stringResource(Res.string.launch_details_flight_number),
+                    value = "#${launch.flightNumber}"
+                )
+                InfoRow(
+                    label = stringResource(Res.string.launch_details_date),
+                    value = format(launch.launchDateUtc)
+                )
+                InfoRow(
+                    label = stringResource(Res.string.status),
                     value = stringResource(
                         if (launch.launchSuccess) {
                             Res.string.launch_success
@@ -176,13 +196,19 @@ private fun LaunchDetailsContent(
                     )
                 )
                 launch.launchFailureDetails?.reason?.let {
-                    InfoRow(label = "Failure Reason", value = it)
+                    InfoRow(
+                        label = stringResource(Res.string.launch_details_failure_reason),
+                        value = it
+                    )
                 }
             }
         }
         item {
             if (launch.links.flickrImages?.isNotEmpty() == true) {
-                Text("Gallery", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(Res.string.gallery),
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(Modifier.height(8.dp))
                 MasonryImageGrid(launch.links.flickrImages) { index ->
                     viewModel.onImageClick(index)
@@ -191,14 +217,17 @@ private fun LaunchDetailsContent(
         }
         launch.details?.let {
             item {
-                InfoSection(title = "Details") {
+                InfoSection(title = stringResource(Res.string.details)) {
                     Text(text = it, style = Typography.bodyMedium)
                 }
             }
         }
         if (launch.crew.isNotEmpty()) {
             item {
-                Text("Crew", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(Res.string.launch_details_crew),
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(Modifier.height(8.dp))
                 crew?.let { list ->
                     list.forEach { crewMember ->
@@ -215,35 +244,27 @@ private fun LaunchDetailsContent(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 launch.links.wikipedia?.let {
                     OutlinedButton(onClick = { urlOpener.open(it) }) {
-                        Text("Wikipedia")
+                        Text(stringResource(Res.string.wikipedia))
                     }
                 }
                 launch.links.reddit?.let {
                     OutlinedButton(onClick = { urlOpener.open(it) }) {
-                        Text("Reddit")
+                        Text(stringResource(Res.string.reddit))
                     }
                 }
                 launch.links.article?.let {
                     OutlinedButton(onClick = { urlOpener.open(it) }) {
-                        Text("Article")
+                        Text(stringResource(Res.string.article))
                     }
                 }
                 launch.links.webcast?.let {
                     OutlinedButton(onClick = { urlOpener.open(it) }) {
-                        Text("Webcast")
+                        Text(stringResource(Res.string.webcast))
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun format(instant: Instant): String = remember(instant) {
-    val customFormat = DateTimeComponents.Format {
-        dayOfMonth(); char('.'); monthNumber(); char('.'); year()
-    }
-    instant.format(customFormat)
 }
 
 @Composable
@@ -287,7 +308,7 @@ fun CrewMemberBox(crewMember: CrewMemberEntity) {
 
                 crewMember.status?.let {
                     Text(
-                        text = "Status: $it",
+                        text = stringResource(Res.string.launch_details_status, it),
                         style = Typography.bodySmall
                     )
                 }
@@ -295,7 +316,7 @@ fun CrewMemberBox(crewMember: CrewMemberEntity) {
                 crewMember.wikipedia?.let {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(onClick = { urlOpener.open(it) }) {
-                        Text("Wikipedia")
+                        Text(stringResource(Res.string.wikipedia))
                     }
                 }
             }

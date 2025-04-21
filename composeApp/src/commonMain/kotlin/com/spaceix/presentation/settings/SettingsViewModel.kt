@@ -1,31 +1,40 @@
 package com.spaceix.presentation.settings
 
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.spaceix.data.datastore.SpaceXDataStore
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.map
+import com.spaceix.core.Platform
+import com.spaceix.core.isAndroid12OrAbove
+import com.spaceix.manager.AppTheme
+import com.spaceix.manager.ThemeManager
 import kotlinx.coroutines.launch
-import kotlin.random.Random
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class SettingsViewModel(
-    private val dataStore: SpaceXDataStore,
+    private val themeManager: ThemeManager
 ) : ViewModel() {
 
-    private val theme = stringPreferencesKey("theme")
+    val currentTheme = themeManager.getCurrentTheme(viewModelScope)
+    val isDynamicColor = themeManager.isDynamicColor(viewModelScope)
 
-    val currentTheme = dataStore.prefs.data.map { it[theme] ?: "not set" }
+    private val _showDynamicColorSwitch = MutableStateFlow(false)
+    val showDynamicColorSwitch = _showDynamicColorSwitch.asStateFlow()
 
     init {
         viewModelScope.launch {
-            delay(2000)
-            dataStore.prefs
-                .edit {
-                    val theme = theme
-                    it[theme] = "system ${Random.nextInt()}"
-                }
+            _showDynamicColorSwitch.emit(Platform.isAndroid && isAndroid12OrAbove())
+        }
+    }
+
+    fun onDynamicColorSwitchChanged(enabled: Boolean) {
+        viewModelScope.launch {
+            themeManager.setDynamicColor(enabled)
+        }
+    }
+
+    fun onThemeChanged(theme: AppTheme) {
+        viewModelScope.launch {
+            themeManager.setTheme(theme)
         }
     }
 }
