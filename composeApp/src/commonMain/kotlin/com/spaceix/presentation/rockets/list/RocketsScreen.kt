@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -32,7 +33,6 @@ import com.spaceix.designsystem.customColorsPalette
 import com.spaceix.designsystem.icons.filled.Star
 import com.spaceix.designsystem.icons.outlined.Star
 import com.spaceix.designsystem.util.updateScrollState
-import com.spaceix.domain.model.RocketEntity
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import spacex.composeapp.generated.resources.Res
@@ -43,6 +43,7 @@ fun RocketsScreen(navController: NavHostController, paddingValues: PaddingValues
     val viewModel = koinViewModel<RocketsViewModel>()
     navController.observeNavigation(viewModel.navigation)
     val showLoader = viewModel.showLoader.collectAsStateWithLifecycle().value
+    LaunchedEffect(Unit) { viewModel.onViewResumed() }
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
         if (showLoader) {
             CircularProgressIndicator(modifier = Modifier.width(48.dp))

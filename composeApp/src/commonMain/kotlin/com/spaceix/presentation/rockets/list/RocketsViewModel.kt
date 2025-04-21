@@ -31,6 +31,10 @@ class RocketsViewModel(
     val showLoader = _showLoader.asStateFlow()
 
     init {
+        viewModelScope.launch { _showLoader.emit(true) }
+    }
+
+    fun onViewResumed() {
         viewModelScope.launch {
             getRockets()
             _showLoader.emit(false)

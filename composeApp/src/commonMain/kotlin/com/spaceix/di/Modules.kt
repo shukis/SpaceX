@@ -30,7 +30,6 @@ import com.spaceix.presentation.rockets.details.RocketDetailsViewModel
 import com.spaceix.presentation.rockets.list.RocketsViewModel
 import com.spaceix.presentation.root.MainRootViewModel
 import com.spaceix.presentation.settings.SettingsViewModel
-import com.spaceix.ThemeViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -52,8 +51,8 @@ val sharedModule = module {
     viewModelOf(::RocketsViewModel)
     viewModelOf(::FavouritesViewModel)
     viewModelOf(::SettingsViewModel)
-    viewModel { (launchId: String) -> LaunchDetailsViewModel(get(), get(), launchId) }
-    viewModel { (rocketId: String) -> RocketDetailsViewModel(get(), rocketId) }
+    viewModel { (launchId: String) -> LaunchDetailsViewModel(get(), get(), get(), get(), launchId) }
+    viewModel { (rocketId: String) -> RocketDetailsViewModel(get(), get(), get(), rocketId) }
 
     single {
         get<DatabaseFactory>().create()
